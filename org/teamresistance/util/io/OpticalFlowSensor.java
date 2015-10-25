@@ -1,4 +1,4 @@
-package org.teamresistance.util;
+package org.teamresistance.util.io;
 
 import org.teamresistance.mathd.Vector2d;
 
@@ -39,8 +39,8 @@ public class OpticalFlowSensor {
 		int motionRegister = readRegister(MOTION_REGISTER);
 		SmartDashboard.putNumber("Motion Register", motionRegister);
 		if((motionRegister & 0x80) != 0) {
-			readRegister((byte)3);
-			readRegister((byte)4);
+			readRegister(DY_REGISTER);
+			readRegister(DX_REGISTER);
 		}
 		pos.setX(0);
 		pos.setY(0);

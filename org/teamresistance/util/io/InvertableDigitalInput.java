@@ -1,4 +1,4 @@
-package org.teamresistance.util;
+package org.teamresistance.util.io;
 
 public class InvertableDigitalInput extends edu.wpi.first.wpilibj.DigitalInput {
 

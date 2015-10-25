@@ -1,4 +1,4 @@
-package org.teamresistance.util;
+package org.teamresistance.util.io;
 
 import edu.wpi.first.wpilibj.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
