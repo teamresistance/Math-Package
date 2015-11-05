@@ -43,7 +43,7 @@ public class StateMachine {
 		if (newState == null) {
 			throw new NullPointerException ();
 		}
-		if (newState == currentState) {
+		if (newState.getClass().equals(currentState.getClass())) {
 			return;
 		}
 		
