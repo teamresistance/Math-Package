@@ -3,7 +3,6 @@ package org.teamresistance.util;
 import org.teamresistance.util.io.DualGyro;
 
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class MecanumDrive {
 	private RobotDrive drive;
