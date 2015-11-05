@@ -4,7 +4,7 @@ public class StateTransition {
 	private State initialState;
 	private State newState;
 	
-	public StateTransition(State initialState, State newState) {
+	StateTransition(State initialState, State newState) {
 		this.initialState = initialState;
 		this.newState = newState;
 	}
