@@ -1,65 +1,135 @@
 package org.teamresistance.util.state;
 
-
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a Finite State Machine (FSM). The FSM can be in one single state at a time. 
- * Users can change the state of the machine.
+ * Users should instantiate the machine, provide it with states and (case-sensitive) names,
+ * set it to an initial state, and then initialize the machine.
+ * 
  * @author Mathis
  */
 public class StateMachine {
 	/**
-	 * This FSM's current state. Can never be null. 
+	 * This FSM's current state. Can never be null after initialization
 	 */
 	private State currentState;
 	
-	/**
-	 * Constructs a new State Machine, and sets its state to the specified State object.
-	 * @param initialState the state
-	 * @throws NullPointerException if the state is a null pointer
-	 */
-	public StateMachine(State initialState) {
-		if (initialState == null) {
-			throw new NullPointerException();
-		}
-		currentState = initialState;
+	private Map<String, State> states;
+	
+	public StateMachine() {
+		currentState = null;
+		states = new HashMap<>();
 	}
 	
 	/**
 	 * Updates this State Machine's current state.
 	 */
 	public void update() {
-		currentState.update();
+		if(currentState != null) {
+			currentState.update();
+		}
 	}
 
 	/**
-	 * Exits the current state, and enters the specified new state. 
-	 * If the new state is of the same type as the current state, 
-	 * then this method returns without altering this StateMachine.
-	 * @param newState the state
-	 * @throws NullPointerException if state is null.
+	 * Registers a new state of the specified type.
+	 * @param stateType the type
+	 * @return <code>true</code> if the new instance was successfully added
+	 * @throws NullPointerException if <code>stateType</code> is <code>null</code>.
 	 */
-	public void setState(State newState) {
-		if (newState == null) {
-			throw new NullPointerException ();
+	public boolean addState(Class<? extends State> stateType) {
+		if(stateType == null) {
+			return false;
 		}
-		if (newState.getClass().equals(currentState.getClass())) {
-			return;
+		return addState(stateType, stateType.getSimpleName());
+	}
+	
+	/**
+	 * Registers a new state of the specified type, and associates it with the specified name.
+	 * If the name is a null pointer, then the state's runtime class name is used
+	 * @param stateType the state
+	 * @param stateName the name
+	 * @return <code>true</code> if the new instance was successfully added
+	 * @throws NullPointerException if <code>stateType</code> is <code>null</code>.
+	 */
+	public boolean addState(Class<? extends State> stateType, String stateName) {
+		if (stateType == null) {
+			throw new NullPointerException();
 		}
+		if (stateName == null) {
+			stateName = stateType.getSimpleName();
+		} 
+		if (containsState(stateName)) {
+			return false;
+		}
+		State instance = newInstance(stateType);
 		
-		transition(newState);
+		if (instance == null) {
+			return false;
+		}
+		instance.init();
+		states.put(stateName, instance);
+		return true;
 	}
 	
-	public State getState() {
-		return currentState;
+	/**
+	 * Exits the current state, and enters the state of the specified name.
+	 * If the state is the current state, Then this method returns without altering this StateMachine.
+	 * @param stateName the name
+	 * @return <code>true</code> if and only if the state of this machine was changed
+	 */
+	public boolean setState(String stateName) {
+		if (stateName == null) {
+			return false;
+		}
+		return transition(states.get(stateName));
 	}
 	
-	private void transition(State newState) {
+	public int getNumStates() {
+		return states.size();
+	}
+	public boolean containsState(String stateName) {
+		return states.containsKey(stateName);
+	}
+	
+	/**
+	 * Attempts to transition into the specified state.
+	 * @param newState the state
+	 * @return <code>true</code> if and only if the transition was successful.
+	 */
+	private boolean transition(State newState) {
+		if (newState == null || newState == currentState) {
+			return false;
+		}
 		StateTransition transition = new StateTransition(currentState, newState);
-		
-		currentState.onExit(transition);
+		if (currentState != null) {
+			currentState.onExit(transition);
+		}
 		newState.onEntry(transition);
 		
 		currentState = newState;
+		return true;
+	}
+	
+	/**
+	 * Returns a new instance of the specified State subclass,
+	 * or null if a new instance cannot be created.
+	 * @param stateType
+	 * @return
+	 */
+	private State newInstance(Class<? extends State> stateType) {
+		try {
+			Constructor<? extends State> ctor = stateType.getDeclaredConstructor(StateMachine.class);
+			ctor.setAccessible(true);
+			return ctor.newInstance(this);
+		} catch (InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
