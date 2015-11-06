@@ -29,7 +29,9 @@ public class StateMachine {
 	 * Updates this State Machine's current state.
 	 */
 	public void update() {
-		currentState.update();
+		if(currentState != null) {
+			currentState.update();
+		}
 	}
 
 	/**
@@ -39,6 +41,9 @@ public class StateMachine {
 	 * @throws NullPointerException if <code>stateType</code> is <code>null</code>.
 	 */
 	public boolean addState(Class<? extends State> stateType) {
+		if(stateType == null) {
+			return false;
+		}
 		return addState(stateType, stateType.getSimpleName());
 	}
 	
