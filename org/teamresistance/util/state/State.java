@@ -11,18 +11,9 @@ package org.teamresistance.util.state;
 public abstract class State {
 	
 	private StateMachine stateMachine;
-	
-	void setStateMachine(StateMachine stateMachine) {
+
+	protected State(StateMachine stateMachine) {
 		this.stateMachine = stateMachine;
-	}
-	
-	/**
-	 * Sets the state of this State's state machine to an instance of the specified type. 
-	 * @param stateType the type of state
-	 * @return true if and only if the state of the state machine was changed.
-	 */
-	final protected boolean gotoState(Class<? extends State> stateType) {
-		return stateMachine.setState(stateType);
 	}
 	
 	/**
@@ -34,10 +25,20 @@ public abstract class State {
 		return stateMachine.setState(stateName);
 	}
 	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName();
+	}
+	
+	/**
+	 * Called by the state machine when this state is first created.
+	 * Contains state object initialization code.
+	 */
+	public abstract void init();
+	
 	/**
 	 * Called by the state machine whenever this state is entered.
-	 * Object initialization code may be present, but it is recommended to be in the constructor.
-	 * State reset code should be present.
+	 * Contains state reset code.
 	 * @param e State Transition event object
 	 */
 	public abstract void onEntry(StateTransition e);

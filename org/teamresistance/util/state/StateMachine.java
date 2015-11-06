@@ -1,58 +1,28 @@
 package org.teamresistance.util.state;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Represents a Finite State Machine (FSM). The FSM can be in one single state at a time. 
- * Users should instantiate the machine and provide the initial state information,
- * and then add state instances to the machine.
- * 
- * Currently, State.onEntry is NOT invoked in state initialization: The design assumes eternal state.
+ * Users should instantiate the machine, provide it with states and (case-sensitive) names,
+ * set it to an initial state, and then initialize the machine.
  * 
  * @author Mathis
  */
 public class StateMachine {
 	/**
-	 * This FSM's current state. Can never be null. 
+	 * This FSM's current state. Can never be null after initialization
 	 */
 	private State currentState;
 	
-	/*
-	 * There is one instance of each implementation of State per lifetime of this State Machine. 
-	 * Each is mutated.
-	 */
+	private Map<String, State> states;
 	
-	private Map<Class<? extends State>, State> stateTypeMap;
-	private Map<String, State> stateNameMap;
-	
-	/**
-	 * Constructs a new State Machine, and sets its state to the specified State object.
-	 * @param initialState the state
-	 * @throws NullPointerException if <code>state</code> is a null pointer
-	 */
-	public StateMachine(State initialState) {
-		this();
-		addState(initialState);
-		currentState = initialState;
-	}
-	
-	/**
-	 * Constructs a new State Machine sets its state to the specified State object, 
-	 * and associates the state with a name.
-	 * @param initialState the state
-	 * @param initialStateName the name
-	 * @throws NullPointerException if <code>state</code> is <code>null</code>
-	 */
-	public StateMachine(State initialState, String initialStateName) {
-		this();
-		addState(initialState, initialStateName);
-		currentState = initialState;
-	}
-	
-	private StateMachine() {
-		stateTypeMap = new HashMap<>();
-		stateNameMap = new HashMap<>();
+	public StateMachine() {
+		currentState = null;
+		states = new HashMap<>();
 	}
 	
 	/**
@@ -63,43 +33,41 @@ public class StateMachine {
 	}
 
 	/**
-	 * Registers a new instance of an implementation of state.
-	 * @param state the instance
-	 * @throws NullPointerException if <code>state</code> is <code>null</code>.
-	 */
-	public void addState(State state) {
-		if (state == null) {
-			throw new NullPointerException ();
-		} 
-		state.setStateMachine(this);
-		stateTypeMap.put(state.getClass(), state);
-	}
-	
-	/**
-	 * Registers a new instance of an implementation of state, and associates it with a name.
-	 * If the name is a null pointer, then it is ignored.
-	 * @param state the instance
-	 * @param stateName the name
-	 * @throws NullPointerException if <code>state</code> is <code>null</code>.
-	 */
-	public void addState(State state, String stateName) {
-		addState(state);
-		if (stateName != null) {
-			stateNameMap.put(stateName, state);
-		}
-	}
-	
-	/**
-	 * Exits the current state, and enters the state of the specified type. 
-	 * If the state is the current state, Then this method returns without altering this StateMachine.
+	 * Registers a new state of the specified type.
 	 * @param stateType the type
-	 * @return <code>true</code> if and only if the state of this machine was changed.
+	 * @return <code>true</code> if the new instance was successfully added
+	 * @throws NullPointerException if <code>stateType</code> is <code>null</code>.
 	 */
-	public boolean setState(Class<? extends State> stateType) {
+	public boolean addState(Class<? extends State> stateType) {
+		return addState(stateType, stateType.getSimpleName());
+	}
+	
+	/**
+	 * Registers a new state of the specified type, and associates it with the specified name.
+	 * If the name is a null pointer, then the state's runtime class name is used
+	 * @param stateType the state
+	 * @param stateName the name
+	 * @return <code>true</code> if the new instance was successfully added
+	 * @throws NullPointerException if <code>stateType</code> is <code>null</code>.
+	 */
+	public boolean addState(Class<? extends State> stateType, String stateName) {
 		if (stateType == null) {
+			throw new NullPointerException();
+		}
+		if (stateName == null) {
+			stateName = stateType.getSimpleName();
+		} 
+		if (containsState(stateName)) {
 			return false;
 		}
-		return transition(stateNameMap.get(stateType));
+		State instance = newInstance(stateType);
+		
+		if (instance == null) {
+			return false;
+		}
+		instance.init();
+		states.put(stateName, instance);
+		return true;
 	}
 	
 	/**
@@ -112,12 +80,16 @@ public class StateMachine {
 		if (stateName == null) {
 			return false;
 		}
-		return transition(stateNameMap.get(stateName));
+		return transition(states.get(stateName));
 	}
 	
-	public State getState() {
-		return currentState;
+	public int getNumStates() {
+		return states.size();
 	}
+	public boolean containsState(String stateName) {
+		return states.containsKey(stateName);
+	}
+	
 	/**
 	 * Attempts to transition into the specified state.
 	 * @param newState the state
@@ -128,11 +100,31 @@ public class StateMachine {
 			return false;
 		}
 		StateTransition transition = new StateTransition(currentState, newState);
-		
-		currentState.onExit(transition);
+		if (currentState != null) {
+			currentState.onExit(transition);
+		}
 		newState.onEntry(transition);
 		
 		currentState = newState;
 		return true;
+	}
+	
+	/**
+	 * Returns a new instance of the specified State subclass,
+	 * or null if a new instance cannot be created.
+	 * @param stateType
+	 * @return
+	 */
+	private State newInstance(Class<? extends State> stateType) {
+		try {
+			Constructor<? extends State> ctor = stateType.getDeclaredConstructor(StateMachine.class);
+			ctor.setAccessible(true);
+			return ctor.newInstance(this);
+		} catch (InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
