@@ -1,33 +1,26 @@
 package org.teamresistance.util.io;
 
-import org.teamresistance.mathd.Vector2d;
-
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class OpticalFlowSensor {
 	
-	private DualGyro gyro;
 	private SPI spi;
 	private byte[] dataReceived;
 	private byte[] register = new byte[] {0};
 	
-	private Vector2d pos = new Vector2d(0, 0);
+	private double x = 0;
+	private double y = 0;
 	
 	private double ticksPerFootX = 250.5; //268
 	private double ticksPerFootY = 274;
 	
-	private int clockRate = 500000;
-	
-	private static final byte MOTION_REGISTER = (byte)2;
-	private static final byte DY_REGISTER = (byte)3;
-	private static final byte DX_REGISTER = (byte)4;
-	
-	public OpticalFlowSensor(SPI.Port port) {
-		spi = new SPI(port);
+	public OpticalFlowSensor() {
+		spi = new SPI(Port.kOnboardCS0);
 		spi.setChipSelectActiveLow();
 		spi.setClockActiveHigh();
-		spi.setClockRate(clockRate);
+		spi.setClockRate(500000);
 		
 		dataReceived = new byte[1];
 		for(int i = 0; i < dataReceived.length; i++) {
@@ -36,28 +29,40 @@ public class OpticalFlowSensor {
 	}
 	
 	public void init() {
-		int motionRegister = readRegister(MOTION_REGISTER);
+		int motionRegister = readRegister((byte)2);
 		SmartDashboard.putNumber("Motion Register", motionRegister);
 		if((motionRegister & 0x80) != 0) {
-			readRegister(DY_REGISTER);
-			readRegister(DX_REGISTER);
+			readRegister((byte)3);
+			readRegister((byte)4);
 		}
-		pos.setX(0);
-		pos.setY(0);
+		x = 0;
+		y = 0;
 	}
 	
 	public void update() {
+		SmartDashboard.putNumber("Product ID", readRegister((byte)0));
+//		Timer.delay(0.05);
+//		SmartDashboard.putNumber("Squal", readRegister((byte)5));
+//		
 		int rawDx = 0;
 		int rawDy = 0;
-		int motionRegister = readRegister(MOTION_REGISTER);
+		int motionRegister = readRegister((byte)2);
+		SmartDashboard.putNumber("Motion Register", motionRegister);
 		if((motionRegister & 0x80) != 0) {
-			rawDy = readRegister(DY_REGISTER);
-			rawDx = -readRegister(DX_REGISTER);
+			rawDy = readRegister((byte)3);
+			rawDx = -readRegister((byte)4);
 		}
-		double rad = Math.toRadians(gyro.getAngle());
+		double rad = Math.toRadians(IO.gyro.getAngle()); //the IO class doesn't exist yet
+		double cos = Math.cos(rad);
+		double sin = Math.sin(rad);
 		double dx = rawDx / ticksPerFootX;
 		double dy = rawDy / ticksPerFootY;
-		pos = pos.add(new Vector2d(dx, dy).rotate(rad));
+		x += dx/*dx * cos - dy * sin*/;
+		y += dy/*dx * sin + dy * cos*/;
+		SmartDashboard.putNumber("Delta X", (double)rawDx);
+		SmartDashboard.putNumber("Delta Y", (double)rawDy);
+		SmartDashboard.putNumber("X", x);
+		SmartDashboard.putNumber("Y", y);
 	}
 	
 	private int readRegister(byte register) {
@@ -67,5 +72,21 @@ public class OpticalFlowSensor {
 		spi.read(false, dataReceived, 1); // Reads the real register value
 		return dataReceived[0];
 	}
-}
 
+	public double getX() {
+		return x;
+	}
+
+	public void setX(double x) {
+		this.x = x;
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public void setY(double y) {
+		this.y = y;
+	}
+	
+}
