@@ -38,7 +38,6 @@ public class StateMachine {
 	 * Registers a new state of the specified type.
 	 * @param stateType the type
 	 * @return <code>true</code> if the new instance was successfully added
-	 * @throws NullPointerException if <code>stateType</code> is <code>null</code>.
 	 */
 	public boolean addState(Class<? extends State> stateType) {
 		if(stateType == null) {
@@ -50,14 +49,13 @@ public class StateMachine {
 	/**
 	 * Registers a new state of the specified type, and associates it with the specified name.
 	 * If the name is a null pointer, then the state's runtime class name is used
-	 * @param stateType the state
+	 * @param stateType the type
 	 * @param stateName the name
 	 * @return <code>true</code> if the new instance was successfully added
-	 * @throws NullPointerException if <code>stateType</code> is <code>null</code>.
 	 */
 	public boolean addState(Class<? extends State> stateType, String stateName) {
 		if (stateType == null) {
-			throw new NullPointerException();
+			return false;
 		}
 		if (stateName == null) {
 			stateName = stateType.getSimpleName();
@@ -117,8 +115,8 @@ public class StateMachine {
 	/**
 	 * Returns a new instance of the specified State subclass,
 	 * or null if a new instance cannot be created.
-	 * @param stateType
-	 * @return
+	 * @param stateType the type
+	 * @return the instance
 	 */
 	private State newInstance(Class<? extends State> stateType) {
 		try {
