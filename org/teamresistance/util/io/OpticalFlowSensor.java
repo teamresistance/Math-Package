@@ -16,8 +16,8 @@ public class OpticalFlowSensor {
 	private double ticksPerFootX = 250.5; //268
 	private double ticksPerFootY = 274;
 	
-	public OpticalFlowSensor() {
-		spi = new SPI(Port.kOnboardCS0);
+	public OpticalFlowSensor(Port port) {
+		spi = new SPI(port);
 		spi.setChipSelectActiveLow();
 		spi.setClockActiveHigh();
 		spi.setClockRate(500000);
@@ -26,6 +26,10 @@ public class OpticalFlowSensor {
 		for(int i = 0; i < dataReceived.length; i++) {
 			dataReceived[i] = 0;
 		}
+	}
+	
+	public OpticalFlowSensor(int portChannel) {
+		this(Port.valueOf("kOnboardCS" + portChannel));
 	}
 	
 	public void init() {
