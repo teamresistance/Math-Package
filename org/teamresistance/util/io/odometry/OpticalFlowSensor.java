@@ -1,4 +1,4 @@
-package org.teamresistance.util.io;
+package org.teamresistance.util.io.odometry;
 
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SPI.Port;
@@ -26,10 +26,6 @@ public class OpticalFlowSensor {
 		for(int i = 0; i < dataReceived.length; i++) {
 			dataReceived[i] = 0;
 		}
-	}
-	
-	public OpticalFlowSensor(int portChannel) {
-		this(Port.valueOf("kOnboardCS" + portChannel));
 	}
 	
 	public void init() {
