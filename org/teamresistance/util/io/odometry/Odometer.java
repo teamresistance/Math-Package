@@ -1,7 +1,5 @@
 package org.teamresistance.util.io.odometry;
 
-import org.teamresistance.mathd.Vector2d;
-
 import edu.wpi.first.wpilibj.SPI.Port;
 
 /**
@@ -28,7 +26,7 @@ public class Odometer {
 	private double y;
 	private double theta; //orientation of robot, in radians
 	
-	private double diameter = -1; //TODO distance between sensors, same units as flow sensor length 
+	private double diameter = -1; //TODO distance between sensors, in feet
 	private double tolerance = -1; //TODO how equal do readings have to be before I can pretend they should be equal?
 	
 	/**
@@ -42,7 +40,7 @@ public class Odometer {
 	}
 	
 	/**
-	 * Constructs a new Odometer that takes input from the flow sensors connected to the specified port
+	 * Constructs a new Odometer that takes input from the flow sensors connected to the specified ports
 	 * @param leftPort the port for the left flow sensor
 	 * @param rightPort the port for the right flow sensor
 	 */
@@ -79,22 +77,26 @@ public class Odometer {
 		double dx;
 		double dy;
 		
+		//sin and cos of current angle, computed beforehand as a slight optimization.
+		double cos = Math.cos(theta);
+		double sin = Math.sin(theta);
+		
 		//if dtheta should be zero; if translated only
-		if (-tolerance < dtheta && dtheta < tolerance) {
+		if (-tolerance <= dtheta && dtheta <= tolerance) {
 			//The translation, average flow readings.
-			//Rotate by current angle, to move vector into absolute frame
-			Vector2d dr = new Vector2d(avgdx, s).rotate(theta);
-			dx = dr.getX();
-			dy = dr.getY();
+			//Let the relative translation vector be (avgdx, r).
+			//Rotate the relative translation vector by current angle, theta
+			dx = avgdx * cos - s * sin;
+			dy = avgdx * sin + s * cos;
 		} else { 
 			//The distance between the point of rotation (the rotation of dtheta) and the midpoint.
 			double r = s / dtheta;
 			
-			dx = r * (Math.cos(theta + dtheta) - Math.cos(theta));
-			dy = r * (Math.sin(theta + dtheta) - Math.sin(theta));
+			dx = r * (Math.cos(theta + dtheta) - cos);
+			dy = r * (Math.sin(theta + dtheta) - sin);
 			
 			//TODO is this even possible? To have x-translation WHILE you rotate circularly?
-			dx += avgdx;
+			//dx += avgdx;
 		}
 		
 		x += dx;
@@ -104,23 +106,21 @@ public class Odometer {
 	
 	/**
 	 * Returns the absolute x-displacement from the origin.
-	 * TODO add units from flow sensor
-	 * @return the distance
+	 * @return the distance, in feet.
 	 */
 	public double getX() {
 		return x;
 	}
 	/**
 	 * Returns the absolute y-displacement from the origin.
-	 * TODO add units from flow sensor
-	 * @return the distance
+	 * @return the distance, in feet.
 	 */
 	public double getY() {
 		return y;
 	}
 	/**
-	 * Returns the angle between the absolute x-axis and the joining segment of the two sensors, in radians.
-	 * @return the angle
+	 * Returns the angle between the absolute x-axis and the joining segment of the two sensors.
+	 * @return the angle, in radians.
 	 */
 	public double getAngle() {
 		return theta;
