@@ -1,7 +1,6 @@
 package org.teamresistance.util.io.odometry;
 
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class OpticalFlowSensor {
@@ -16,7 +15,7 @@ public class OpticalFlowSensor {
 	private double ticksPerFootX = 250.5; //268
 	private double ticksPerFootY = 274;
 	
-	public OpticalFlowSensor(Port port) {
+	public OpticalFlowSensor(SPI.Port port) {
 		spi = new SPI(port);
 		spi.setChipSelectActiveLow();
 		spi.setClockActiveHigh();
@@ -52,9 +51,6 @@ public class OpticalFlowSensor {
 			rawDy = readRegister((byte)3);
 			rawDx = -readRegister((byte)4);
 		}
-		double rad = Math.toRadians(IO.gyro.getAngle()); //the IO class doesn't exist yet
-		double cos = Math.cos(rad);
-		double sin = Math.sin(rad);
 		double dx = rawDx / ticksPerFootX;
 		double dy = rawDy / ticksPerFootY;
 		x += dx/*dx * cos - dy * sin*/;
