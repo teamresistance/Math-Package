@@ -26,8 +26,8 @@ public class Odometer {
 	private double y;
 	private double theta; //orientation of robot, in radians
 	
-	private double diameter = -1; //TODO distance between sensors, in feet
-	private double tolerance = -1; //TODO how equal do readings have to be before I can pretend they should be equal?
+	private static final double kDiameter = -1; //TODO distance between sensors, in feet
+	private static final double kTolerance = -1; //TODO how equal do readings have to be before I can pretend they should be equal?
 	
 	/**
 	 * Constructs a new Odometer that takes input from the flow sensors connected to the specified port channels
@@ -71,7 +71,7 @@ public class Odometer {
 		//The resulting two subtracted equal and opposite y values underneath represent rotation.
 		//Divide by two, since those two y rotation values were equal (One was opposite, but they were subtracted...)
 		//Divide by the radius.
-		double dtheta = (rdy - ldy) / diameter; //rotation of sensors, in radians, absolute.
+		double dtheta = (rdy - ldy) / kDiameter; //rotation of sensors, in radians, absolute.
 
 		//Absolute translation vector
 		double dx;
@@ -82,7 +82,7 @@ public class Odometer {
 		double sin = Math.sin(theta);
 		
 		//if dtheta should be zero; if translated only
-		if (-tolerance <= dtheta && dtheta <= tolerance) {
+		if (-kTolerance <= dtheta && dtheta <= kTolerance) {
 			//The translation, average flow readings.
 			//Let the relative translation vector be (avgdx, r).
 			//Rotate the relative translation vector by current angle, theta
