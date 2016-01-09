@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.SPI.Port;
  * Perhaps "sign" and "anti-sign" or some other nomenclature that stresses this characteristic
  * and not a relative direction, would be better.
  * @author Mathis
- *
  */
 public class Odometer {
 	private OpticalFlowSensor left;
