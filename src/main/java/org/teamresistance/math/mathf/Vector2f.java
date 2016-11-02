@@ -1,4 +1,4 @@
-package org.teamresistance.mathf;
+package org.teamresistance.math.mathf;
 
 public class Vector2f {
 	private float x;

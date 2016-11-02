@@ -1,7 +1,7 @@
-package org.teamresistance.mathd;
+package org.teamresistance.math.mathd;
 
-import org.teamresistance.mathi.Vector2i;
-import org.teamresistance.mathi.Vector3i;
+import org.teamresistance.math.mathi.Vector2i;
+import org.teamresistance.math.mathi.Vector3i;
 
 public class Vector3d {
 	private double x;

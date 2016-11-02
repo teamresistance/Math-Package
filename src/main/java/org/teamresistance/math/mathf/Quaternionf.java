@@ -1,6 +1,6 @@
-package org.teamresistance.mathf;
+package org.teamresistance.math.mathf;
 
-import org.teamresistance.mathi.Vector3i;
+import org.teamresistance.math.mathi.Vector3i;
 
 public class Quaternionf {
 	private float x;

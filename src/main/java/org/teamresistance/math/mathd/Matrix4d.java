@@ -1,13 +1,13 @@
-package org.teamresistance.mathf;
+package org.teamresistance.math.mathd;
 
-public class Matrix4f {
-	private float[][] m;
+public class Matrix4d {
+	private double[][] m;
 	
-	public Matrix4f() {
-		m = new float[4][4];
+	public Matrix4d() {
+		m = new double[4][4];
 	}
 
-	public Matrix4f initIdentity() {
+	public Matrix4d initIdentity() {
 		m[0][0] = 1;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;
 		m[1][0] = 0;	m[1][1] = 1;	m[1][2] = 0;	m[1][3] = 0;
 		m[2][0] = 0;	m[2][1] = 0;	m[2][2] = 1;	m[2][3] = 0;
@@ -16,7 +16,7 @@ public class Matrix4f {
 		return this;
 	}
 	
-	public Matrix4f initTranslation(float x, float y, float z) {
+	public Matrix4d initTranslation(double x, double y, double z) {
 		m[0][0] = 1;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = x;
 		m[1][0] = 0;	m[1][1] = 1;	m[1][2] = 0;	m[1][3] = y;
 		m[2][0] = 0;	m[2][1] = 0;	m[2][2] = 1;	m[2][3] = z;
@@ -25,28 +25,28 @@ public class Matrix4f {
 		return this;
 	}
 	
-	public Matrix4f initRotation(float x, float y, float z) {
-		Matrix4f rx = new Matrix4f();
-		Matrix4f ry = new Matrix4f();
-		Matrix4f rz = new Matrix4f();
+	public Matrix4d initRotation(double x, double y, double z) {
+		Matrix4d rx = new Matrix4d();
+		Matrix4d ry = new Matrix4d();
+		Matrix4d rz = new Matrix4d();
 		
-		x = (float)Math.toRadians(x);
-		y = (float)Math.toRadians(y);
-		z = (float)Math.toRadians(z);
+		x = Math.toRadians(x);
+		y = Math.toRadians(y);
+		z = Math.toRadians(z);
 		
-		rz.m[0][0] = (float)Math.cos(z);rz.m[0][1] = -(float)Math.sin(z);rz.m[0][2] = 0;				rz.m[0][3] = 0;
-		rz.m[1][0] = (float)Math.sin(z);rz.m[1][1] = (float)Math.cos(z);rz.m[1][2] = 0;					rz.m[1][3] = 0;
+		rz.m[0][0] = Math.cos(z);		rz.m[0][1] = -Math.sin(z);		rz.m[0][2] = 0;					rz.m[0][3] = 0;
+		rz.m[1][0] = Math.sin(z);		rz.m[1][1] = Math.cos(z);		rz.m[1][2] = 0;					rz.m[1][3] = 0;
 		rz.m[2][0] = 0;					rz.m[2][1] = 0;					rz.m[2][2] = 1;					rz.m[2][3] = 0;
 		rz.m[3][0] = 0;					rz.m[3][1] = 0;					rz.m[3][2] = 0;					rz.m[3][3] = 1;
 		
 		rx.m[0][0] = 1;					rx.m[0][1] = 0;					rx.m[0][2] = 0;					rx.m[0][3] = 0;
-		rx.m[1][0] = 0;					rx.m[1][1] = (float)Math.cos(x);rx.m[1][2] = -(float)Math.sin(x);rx.m[1][3] = 0;
-		rx.m[2][0] = 0;					rx.m[2][1] = (float)Math.sin(x);rx.m[2][2] = (float)Math.cos(x);rx.m[2][3] = 0;
+		rx.m[1][0] = 0;					rx.m[1][1] = Math.cos(x);		rx.m[1][2] = -Math.sin(x);		rx.m[1][3] = 0;
+		rx.m[2][0] = 0;					rx.m[2][1] = Math.sin(x);		rx.m[2][2] = Math.cos(x);		rx.m[2][3] = 0;
 		rx.m[3][0] = 0;					rx.m[3][1] = 0;					rx.m[3][2] = 0;					rx.m[3][3] = 1;
 		
-		ry.m[0][0] = (float)Math.cos(y);ry.m[0][1] = 0;					ry.m[0][2] = -(float)Math.sin(y);ry.m[0][3] = 0;
+		ry.m[0][0] = Math.cos(y);		ry.m[0][1] = 0;					ry.m[0][2] = -Math.sin(y);		ry.m[0][3] = 0;
 		ry.m[1][0] = 0;					ry.m[1][1] = 1;					ry.m[1][2] = 0;					ry.m[1][3] = 0;
-		ry.m[2][0] = (float)Math.sin(y);ry.m[2][1] = 0;					ry.m[2][2] = (float)Math.cos(y);ry.m[2][3] = 0;
+		ry.m[2][0] = Math.sin(y);		ry.m[2][1] = 0;					ry.m[2][2] = Math.cos(y);		ry.m[2][3] = 0;
 		ry.m[3][0] = 0;					ry.m[3][1] = 0;					ry.m[3][2] = 0;					ry.m[3][3] = 1;
 		
 		m = rz.mul(ry.mul(rx)).getM();
@@ -54,7 +54,7 @@ public class Matrix4f {
 		return this;
 	}
 	
-	public Matrix4f initScale(float x, float y, float z) {
+	public Matrix4d initScale(double x, double y, double z) {
 		m[0][0] = x;	m[0][1] = 0;	m[0][2] = 0;	m[0][3] = 0;
 		m[1][0] = 0;	m[1][1] = y;	m[1][2] = 0;	m[1][3] = 0;
 		m[2][0] = 0;	m[2][1] = 0;	m[2][2] = z;	m[2][3] = 0;
@@ -63,10 +63,10 @@ public class Matrix4f {
 		return this;
 	}
 	
-	public Matrix4f initProjection(float fov, float width, float height, float zNear, float zFar) {
-		float ar = width/height;
-		float tanHalfFOV = (float)Math.tan(Math.toRadians(fov / 2));
-		float zRange = zNear - zFar;
+	public Matrix4d initProjection(double fov, double width, double height, double zNear, double zFar) {
+		double ar = width/height;
+		double tanHalfFOV = Math.tan(Math.toRadians(fov / 2));
+		double zRange = zNear - zFar;
 		
 		m[0][0] = 1.0f / (tanHalfFOV * ar);	m[0][1] = 0;					m[0][2] = 0;	m[0][3] = 0;
 		m[1][0] = 0;						m[1][1] = 1.0f / tanHalfFOV;	m[1][2] = 0;	m[1][3] = 0;
@@ -77,7 +77,7 @@ public class Matrix4f {
 		return this;
 	}
 	
-	public Matrix4f initOrthographic(float left, float right, float bottom, float top, float near, float far) {
+	public Matrix4d initOrthographic(double left, double right, double bottom, double top, double near, double far) {
 		for(int i = 0; i < 4; i++) {
 			for(int j = 0; j < 4; j++) {
 				m[i][j] = 0;
@@ -94,13 +94,13 @@ public class Matrix4f {
 		return this;
 	}
 	
-	public Matrix4f initCamera(Vector3f forward, Vector3f up) {
-		Vector3f f = forward.normalized();
+	public Matrix4d initCamera(Vector3d forward, Vector3d up) {
+		Vector3d f = forward.normalized();
 		
-		Vector3f r = up.normalized();
+		Vector3d r = up.normalized();
 		r = r.cross(f);
 		
-		Vector3f u = f.cross(r);
+		Vector3d u = f.cross(r);
 		
 		m[0][0] = r.getX();	m[0][1] = r.getY();	m[0][2] = r.getZ();	m[0][3] = 0;
 		m[1][0] = u.getX();	m[1][1] = u.getY();	m[1][2] = u.getZ();	m[1][3] = 0;
@@ -110,8 +110,8 @@ public class Matrix4f {
 		return this;
 	}
 	
-	public Matrix4f mul(Matrix4f r) {
-		Matrix4f res = new Matrix4f();
+	public Matrix4d mul(Matrix4d r) {
+		Matrix4d res = new Matrix4d();
 		
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
@@ -125,8 +125,8 @@ public class Matrix4f {
 		return res;
 	}
 	
-	public float[][] getM() {
-		float[][] res = new float[4][4];
+	public double[][] getM() {
+		double[][] res = new double[4][4];
 		
 		for(int i = 0; i < 4; i++)
 			for(int j = 0; j < 4; j++)
@@ -135,15 +135,15 @@ public class Matrix4f {
 		return res;
 	}
 	
-	public float get(int x, int y) {
+	public double get(int x, int y) {
 		return m[x][y];
 	}
 
-	public void setM(float[][] m) {
+	public void setM(double[][] m) {
 		this.m = m;
 	}
 	
-	public void set(int x, int y, float value) {
+	public void set(int x, int y, double value) {
 		m[x][y] = value;
 	}
 }

@@ -1,6 +1,6 @@
-package org.teamresistance.mathd;
+package org.teamresistance.math.mathd;
 
-import org.teamresistance.mathi.Vector3i;
+import org.teamresistance.math.mathi.Vector3i;
 
 public class Quaterniond {
 	private double x;

@@ -1,4 +1,4 @@
-package org.teamresistance.mathi;
+package org.teamresistance.math.mathi;
 
 public class Vector2i {
 	private int x;

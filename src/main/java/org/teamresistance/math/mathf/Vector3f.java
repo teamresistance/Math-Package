@@ -1,7 +1,7 @@
-package org.teamresistance.mathf;
+package org.teamresistance.math.mathf;
 
-import org.teamresistance.mathi.Vector2i;
-import org.teamresistance.mathi.Vector3i;
+import org.teamresistance.math.mathi.Vector3i;
+import org.teamresistance.math.mathi.Vector2i;
 
 public class Vector3f {
 	private float x;

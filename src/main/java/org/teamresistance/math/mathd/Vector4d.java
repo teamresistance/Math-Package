@@ -1,4 +1,4 @@
-package org.teamresistance.mathd;
+package org.teamresistance.math.mathd;
 
 public class Vector4d {
 	private double x;

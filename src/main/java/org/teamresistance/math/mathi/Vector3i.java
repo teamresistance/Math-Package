@@ -1,7 +1,7 @@
-package org.teamresistance.mathi;
+package org.teamresistance.math.mathi;
 
-import org.teamresistance.mathf.Quaternionf;
-import org.teamresistance.mathf.Vector3f;
+import org.teamresistance.math.mathf.Quaternionf;
+import org.teamresistance.math.mathf.Vector3f;
 
 public class Vector3i {
 	private int x;
